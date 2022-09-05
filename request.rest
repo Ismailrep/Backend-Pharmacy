@@ -1,0 +1,43 @@
+
+// Create User
+POST http://localhost:2000/users/register
+Content-Type: application/json
+
+{
+    "first_name": "Wes",
+    "last_name": "Anderson",
+    "email": "anderson322@gmail.com",
+    "password":"Password@123",
+    "phone": "082153460973"
+}
+
+###
+/// Verify User
+PATCH http://localhost:2000/users/verified/82759044-3eea-4e16-80fa-e7f8a54e8b4c
+
+
+# ###
+# /// Get All Users
+# GET http://localhost:5001/users
+
+# ###
+# /// Get A User
+# GET http://localhost:5001/users/8006a6c1-4094-4683-8e8b-06b5d78342ec
+
+# ###
+# /// Update User
+# PATCH  http://localhost:5001/users/8006a6c1-4094-4683-8e8b-06b5d78342ec
+# Content-Type: application/json
+
+# {
+#     "name": "Antariksa Ryan",
+#     "email": "user@gmail.com",
+#     "password":"",
+#     "confPassword":"",
+#     "role": "user"
+# }
+
+# ### 
+# /// Delete User
+# DELETE   http://localhost:5001/users/8006a6c1-4094-4683-8e8b-06b5d78342ec
+
