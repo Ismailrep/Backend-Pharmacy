@@ -4,6 +4,7 @@ import express from "express";
 import dotenv from "dotenv";
 import db from "./config/Database.js";
 import UserRoute from "./routes/UserRoute.js";
+import adminRouter from "./routes/adminRouter.js";
 dotenv.config();
 
 const app = express();
@@ -33,6 +34,7 @@ app.use(
 
 app.use(express.json());
 app.use(UserRoute);
+app.use("/admin", adminRouter);
 
 // running backend
 app.listen(process.env.APP_PORT, () => {
