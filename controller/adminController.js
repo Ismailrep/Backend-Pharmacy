@@ -104,3 +104,15 @@ export const addAdmin = async (req, res) => {
     res.status(500).send(error);
   }
 };
+
+export const verification = async (req, res) => {
+  try {
+    console.log(req.user);
+    let updateQuery = "update admin set is_verified = 1 where id = ?;";
+    await db.execute(updateQuery, [req.user.id]);
+    res.status(200).send("success");
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
