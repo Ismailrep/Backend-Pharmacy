@@ -82,10 +82,12 @@ export const addAdmin = async (req, res) => {
 
     // Insert new admin
     const [result] = await db.execute(insertQuery, [name, email, password]);
+    console.log("insertId: ", result.insertId);
     if (result.insertId) {
       let getQuery = "select * from admin where id = ?;";
       const [resultData] = await db.execute(getQuery, [result.insertId]);
       const { id, email } = resultData[0];
+      console.log("id: ", id);
       const token = createToken({ id, email });
       const mail = {
         from: `RAMU <kuperhubid@gmail.com>`,
@@ -99,6 +101,18 @@ export const addAdmin = async (req, res) => {
       transporter.sendMail(mail);
       res.status(200).send("success");
     }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
+
+export const verification = async (req, res) => {
+  try {
+    console.log(req.user);
+    let updateQuery = "update admin set is_verified = 1 where id = ?;";
+    await db.execute(updateQuery, [req.user.id]);
+    res.status(200).send("success");
   } catch (error) {
     console.log(error);
     res.status(500).send(error);

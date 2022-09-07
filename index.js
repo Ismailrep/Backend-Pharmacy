@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import db from "./config/Database.js";
 import UserRoute from "./routes/UserRoute.js";
 import adminRouter from "./routes/adminRouter.js";
+import bearerToken from "express-bearer-token";
 dotenv.config();
 
 const app = express();
@@ -33,6 +34,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(bearerToken());
 app.use(UserRoute);
 app.use("/admin", adminRouter);
 
