@@ -82,12 +82,10 @@ export const addAdmin = async (req, res) => {
 
     // Insert new admin
     const [result] = await db.execute(insertQuery, [name, email, password]);
-    console.log("insertId: ", result.insertId);
     if (result.insertId) {
       let getQuery = "select * from admin where id = ?;";
       const [resultData] = await db.execute(getQuery, [result.insertId]);
       const { id, email } = resultData[0];
-      console.log("id: ", id);
       const token = createToken({ id, email });
       const mail = {
         from: `RAMU <kuperhubid@gmail.com>`,
