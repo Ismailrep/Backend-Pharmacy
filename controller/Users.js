@@ -3,7 +3,6 @@ import bcrypt, { hash } from "bcrypt";
 import { transporter } from "../helper/nodemailer.js";
 import hbs from "nodemailer-express-handlebars";
 import { handlebarOptions } from "../helper/handlebars.js";
-import { createToken } from "../helper/createToken.js";
 
 // export const getUser = async (req, res) => {
 //   try {
@@ -55,8 +54,6 @@ export const createUser = async (req, res) => {
   const hashedPass = await bcrypt.hash(password, salt);
 
   try {
-    const token = createToken({ email });
-
     const alreadyExistUser = await User.findOne({ where: { email } }).catch(
       (err) => {
         console.log("Error", err);
@@ -78,8 +75,8 @@ export const createUser = async (req, res) => {
       is_verified: false,
     });
 
-    console.log(response.uuid);
-    process.exit(3);
+    // console.log(response.uuid);
+    // process.exit(3);
 
     let mail = {
       from: "kuperhubid@gmail.com",
@@ -89,8 +86,7 @@ export const createUser = async (req, res) => {
       template: "email",
       context: {
         user: first_name,
-        token: token,
-        // uuid: uuid,
+        uuid: response.uuid,
       },
     };
 
@@ -100,7 +96,7 @@ export const createUser = async (req, res) => {
       }
     });
 
-    res.status(201).json({ msg: "Account Registered!", token });
+    res.status(201).json({ msg: "Account Registered!" });
   } catch (error) {
     res.status(400).json({ msg: error.message });
   }
@@ -121,12 +117,78 @@ export const verifyUser = async (req, res) => {
           is_verified: true,
         },
         {
-          // where: { id: user.id },
           where: { uuid: req.params.id },
         }
       );
     }
     res.status(201).json({ msg: "User Verified", uuid });
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
+  }
+};
+
+export const sendResetPassLink = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({
+      attributes: ["uuid", "email", "first_name"],
+      where: {
+        email: email,
+      },
+    });
+
+    transporter.use("compile", hbs(handlebarOptions));
+
+    if (!user)
+      return res.status(404).json({ msg: "User with this email is not found" });
+
+    let mail = {
+      from: "kuperhubid@gmail.com",
+      // bisa diganti menjadi email user saat input, tetapi untuk contoh jadi email ini:
+      to: "antarisaryan@gmail.com",
+      subject: "RAMU Account Reset Password",
+      template: "resetPass",
+      context: {
+        user: user.first_name,
+        uuid: user.uuid,
+      },
+    };
+
+    transporter.sendMail(mail, (errMail, resMail) => {
+      if (errMail) {
+        console.log(errMail);
+      }
+    });
+    res.status(201).json({ msg: "Reset Password Link Sent!", user });
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
+  }
+};
+
+export const resetPassUser = async (req, res) => {
+  const { password } = req.body;
+  const salt = await bcrypt.genSalt(10);
+  const hashedPass = await bcrypt.hash(password, salt);
+
+  try {
+    const user = await User.findOne({
+      attributes: ["uuid"],
+      where: {
+        uuid: req.params.id,
+      },
+    });
+
+    if (user) {
+      await User.update(
+        {
+          password: hashedPass,
+        },
+        {
+          where: { uuid: req.params.id },
+        }
+      );
+    }
+    res.status(201).json({ msg: "Password Updated!" });
   } catch (error) {
     res.status(400).json({ msg: error.message });
   }
