@@ -4,16 +4,38 @@ POST http://localhost:2000/users/register
 Content-Type: application/json
 
 {
-    "first_name": "Wes",
-    "last_name": "Anderson",
-    "email": "anderson322@gmail.com",
+    "first_name": "Zayn",
+    "last_name": "Malik",
+    "email": "malik1d@gmail.com",
     "password":"Password@123",
     "phone": "082153460973"
 }
 
 ###
 /// Verify User
-PATCH http://localhost:2000/users/verified/82759044-3eea-4e16-80fa-e7f8a54e8b4c
+PATCH http://localhost:2000/users/verified/270c665b-5687-4045-9ca0-8e0748abd001
+
+
+###
+/// Send reset pass link
+POST   http://localhost:2000/users/reset-mail-sent
+Content-Type: application/json
+
+{
+    "email": "ran@gmail.com"
+    }
+
+
+###
+/// Reset Pass
+PATCH http://localhost:2000/users/reset-password/dc245116-2922-4311-9116-4da05b712490
+Content-Type: application/json
+
+{
+    "password":"NewPass@123"
+    }
+
+
 
 
 # ###
