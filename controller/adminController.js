@@ -10,23 +10,35 @@ const db = database.promise();
 export const login = async (req, res) => {
   try {
     let { email, password } = req.body;
-    // password = Crypto.createHmac("sha1", "hash123")
-    //   .update(password)
-    //   .digest("hex");
     const scriptQuery = `select * from admin where email = ?;`;
 
     const [result] = await db.execute(scriptQuery, [email]);
 
     if (result.length) {
-      if (result[0].password === password) {
-        let date = Date.now();
-        const { id, email } = result[0];
+      if (result[0].role === "Admin") {
+        password = Crypto.createHmac("sha1", "hash123")
+          .update(password)
+          .digest("hex");
 
-        const token = createToken({ id, email, date });
+        if (result[0].password === password) {
+          let date = Date.now();
+          const { id, email } = result[0];
+          const token = createToken({ id, email, date });
 
-        res.status(200).send({ adminData: result[0], token });
+          res.status(200).send({ adminData: result[0], token });
+        } else {
+          res.status(200).send("Password didn't match!");
+        }
       } else {
-        res.status(200).send("Password didn't match!");
+        if (result[0].password === password) {
+          let date = Date.now();
+          const { id, email } = result[0];
+          const token = createToken({ id, email, date });
+
+          res.status(200).send({ adminData: result[0], token });
+        } else {
+          res.status(200).send("Password didn't match!");
+        }
       }
     } else {
       res.status(200).send("Email not found!");
