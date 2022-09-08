@@ -50,6 +50,10 @@ const Users = db.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    active_status: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
     phone: {
       type: DataTypes.INTEGER,
       allowNull: false,

@@ -73,6 +73,7 @@ export const createUser = async (req, res) => {
       password: hashedPass,
       phone: phone,
       is_verified: false,
+      active_status: true,
     });
 
     // console.log(response.uuid);
