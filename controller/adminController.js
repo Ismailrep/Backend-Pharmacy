@@ -119,10 +119,66 @@ export const addAdmin = async (req, res) => {
 
 export const verification = async (req, res) => {
   try {
-    console.log(req.user);
     let updateQuery = "update admin set is_verified = 1 where id = ?;";
     await db.execute(updateQuery, [req.user.id]);
     res.status(200).send("success");
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
+
+export const sendResetLink = async (req, res) => {
+  try {
+    const query = "select * from admin where email = ?;";
+    const [result] = await db.execute(query, [req.body.email]);
+
+    if (result.length) {
+      const { id, first_name, email } = result[0];
+      const token = createToken({ id, email });
+      const mail = {
+        from: `RAMU <kuperhubid@gmail.com>`,
+        to: `${email}`,
+        subject: `RAMU Account Reset Password`,
+        template: "adminResetPassword",
+        context: { first_name, token },
+      };
+
+      transporter.use("compile", hbs(handlebarOptions));
+      transporter.sendMail(mail);
+      res.status(200).send("1");
+    } else {
+      res.status(200).send("0");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
+
+export const authResetToken = async (req, res) => {
+  try {
+    res.status(200).send("1");
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    let { password, token } = req.body;
+    // Hashing Password
+    password = Crypto.createHmac("sha1", "hash123")
+      .update(password)
+      .digest("hex");
+    // Decoding token
+    const decoded = jwt_decode(token);
+    const updateQuery = "update admin set password = ? where id = ?;";
+
+    await db.execute(updateQuery, [password, decoded.id]);
+
+    res.status(200).send("1");
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
