@@ -4,23 +4,25 @@ import { transporter } from "../helper/nodemailer.js";
 import hbs from "nodemailer-express-handlebars";
 import { handlebarOptions } from "../helper/handlebars.js";
 
-// export const getUser = async (req, res) => {
-//   try {
-//     const response = await User.findAll({
-//       attributes: [
-//         "uuid",
-//         "first_name",
-//         "last_name",
-//         "email",
-//         "phone",
-//         "is_verified",
-//       ],
-//     });
-//     res.status(200).json(response);
-//   } catch (error) {
-//     res.status(500).json({ msg: error.message });
-//   }
-// };
+export const getUser = async (req, res) => {
+  try {
+    const response = await User.findAll({
+      attributes: [
+        "id",
+        "uuid",
+        "first_name",
+        "last_name",
+        "email",
+        "phone",
+        "is_verified",
+        "active_status",
+      ],
+    });
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
 
 // export const getUserById = async (req, res) => {
 //   try {
@@ -42,6 +44,56 @@ import { handlebarOptions } from "../helper/handlebars.js";
 //     res.status(500).json({ msg: error.message });
 //   }
 // };
+
+export const deactUser = async (req, res) => {
+  try {
+    const uuid = await User.findOne({
+      attributes: ["uuid"],
+      where: {
+        uuid: req.params.id,
+      },
+    });
+
+    if (uuid) {
+      await User.update(
+        {
+          active_status: false,
+        },
+        {
+          where: { uuid: req.params.id },
+        }
+      );
+    }
+    res.status(201).json({ msg: "User Deactivated", uuid });
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
+  }
+};
+
+export const activateUser = async (req, res) => {
+  try {
+    const uuid = await User.findOne({
+      attributes: ["uuid"],
+      where: {
+        uuid: req.params.id,
+      },
+    });
+
+    if (uuid) {
+      await User.update(
+        {
+          active_status: true,
+        },
+        {
+          where: { uuid: req.params.id },
+        }
+      );
+    }
+    res.status(201).json({ msg: "User Activated", uuid });
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
+  }
+};
 
 export const createUser = async (req, res) => {
   const { first_name, last_name, email, password, phone } = req.body;
