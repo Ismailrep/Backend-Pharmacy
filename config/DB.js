@@ -6,7 +6,7 @@ const db = mysql.createConnection({
   user: "root",
   password: "password",
   database: "pharmacy_app",
-  port: 3307,
+  port: 3306,
   multipleStatements: true,
 });
 
