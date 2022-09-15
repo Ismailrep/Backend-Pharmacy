@@ -5,6 +5,7 @@ import Crypto from "crypto";
 import { transporter } from "../helper/nodemailer.js";
 import hbs from "nodemailer-express-handlebars";
 import { handlebarOptions } from "../helper/handlebars.js";
+
 const db = database.promise();
 
 export const login = async (req, res) => {

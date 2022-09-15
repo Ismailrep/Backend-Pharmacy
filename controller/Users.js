@@ -3,6 +3,66 @@ import bcrypt, { hash } from "bcrypt";
 import { transporter } from "../helper/nodemailer.js";
 import hbs from "nodemailer-express-handlebars";
 import { handlebarOptions } from "../helper/handlebars.js";
+import jwt from "jsonwebtoken";
+
+export const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({
+      where: {
+        email: email,
+      },
+    });
+
+    const first_name = user.first_name;
+    const last_name = user.last_name;
+    const is_verified = user.is_verified;
+    const active_status = user.active_status;
+
+    if (user) {
+      const validate = await bcrypt.compare(password, user.password);
+      if (!validate) {
+        res.status(400).send({ msg: "Password is incorrect!" });
+      } else {
+        const token = jwt.sign({ email: user.email }, process.env.JWT_KEY, {
+          expiresIn: "1h",
+        });
+        res.status(200).json({
+          email,
+          first_name,
+          last_name,
+          is_verified,
+          active_status,
+          token,
+        });
+      }
+    }
+  } catch (error) {
+    res.status(404).json({ msg: "User Not Found!" });
+  }
+};
+
+export const keepLoginUser = async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ msg: "Please Log In to your account" });
+  }
+  const user = await User.findOne({
+    attributes: ["uuid", "email", "is_verified", "active_status"],
+    where: {
+      uuid: req.session.uuid,
+    },
+  });
+  if (!user) return res.status(404).json({ msg: "User Not Found" });
+  res.status(200).json(user);
+};
+
+export const logoutUser = async (req, res) => {
+  req.session.destroy((err) => {
+    if (err) return res.status(400).json({ msg: "Cannot Logout" });
+    res.status(200).json({ msg: "You've been logged out" });
+  });
+};
 
 export const getUser = async (req, res) => {
   try {
@@ -23,27 +83,6 @@ export const getUser = async (req, res) => {
     res.status(500).json({ msg: error.message });
   }
 };
-
-// export const getUserById = async (req, res) => {
-//   try {
-//     const response = await User.findOne({
-//       attributes: [
-//         "uuid",
-//         "first_name",
-//         "last_name",
-//         "email",
-//         "phone",
-//         "is_verified",
-//       ],
-//       where: {
-//         uuid: req.params.id,
-//       },
-//     });
-//     res.status(200).json(response);
-//   } catch (error) {
-//     res.status(500).json({ msg: error.message });
-//   }
-// };
 
 export const deactUser = async (req, res) => {
   try {
@@ -97,11 +136,6 @@ export const activateUser = async (req, res) => {
 
 export const createUser = async (req, res) => {
   const { first_name, last_name, email, password, phone } = req.body;
-  // const newUser = new User(req.body);
-
-  // if (password !== confPassword) {
-  //   return res.status(400).json({ msg: "Password didn't match!" });
-  // }
   const salt = await bcrypt.genSalt(10);
   const hashedPass = await bcrypt.hash(password, salt);
 
@@ -128,12 +162,8 @@ export const createUser = async (req, res) => {
       active_status: true,
     });
 
-    // console.log(response.uuid);
-    // process.exit(3);
-
     let mail = {
       from: "kuperhubid@gmail.com",
-      // bisa diganti menjadi email user saat input, tetapi untuk contoh jadi email ini:
       to: "antarisaryan@gmail.com",
       subject: "RAMU Account Verification",
       template: "email",
@@ -197,7 +227,6 @@ export const sendResetPassLink = async (req, res) => {
 
     let mail = {
       from: "kuperhubid@gmail.com",
-      // bisa diganti menjadi email user saat input, tetapi untuk contoh jadi email ini:
       to: "antarisaryan@gmail.com",
       subject: "RAMU Account Reset Password",
       template: "resetPass",
