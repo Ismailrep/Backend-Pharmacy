@@ -2,7 +2,6 @@ import { Sequelize } from "sequelize";
 
 const db = new Sequelize("pharmacy_app", "root", "password", {
   host: "127.0.0.1",
-  // host: "localhost",
   port: "3000",
   // port: "3306",
   dialect: "mysql",
