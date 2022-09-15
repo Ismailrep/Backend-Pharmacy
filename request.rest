@@ -4,9 +4,9 @@ POST http://localhost:2000/users/register
 Content-Type: application/json
 
 {
-    "first_name": "Zayn",
-    "last_name": "Malik",
-    "email": "malik1d@gmail.com",
+    "first_name": "Ryan",
+    "last_name": "Antarisa",
+    "email": "ryan@gmail.com",
     "password":"Password@123",
     "phone": "082153460973"
 }
@@ -14,6 +14,29 @@ Content-Type: application/json
 ###
 /// Verify User
 PATCH http://localhost:2000/users/verified/270c665b-5687-4045-9ca0-8e0748abd001
+
+
+###
+// Login User
+POST http://localhost:2000/users/login
+Content-Type: application/json
+
+{
+    "email": "john@gmail.com",
+    "password": "Password@123"
+}
+
+###
+// Login Admin
+POST http://localhost:2000/admin/login
+Content-Type: application/json
+
+{
+    "email": "admin01@mail.com",
+    "password": "@Monday123"
+}
+
+
 
 
 ###
@@ -34,9 +57,6 @@ Content-Type: application/json
 {
     "password":"NewPass@123"
     }
-
-
-
 
 ###
 /// Get All Users
