@@ -1,49 +1,39 @@
-import database from "../config/DB.js";
-import { createToken } from "../helper/createToken.js";
-import jwt_decode from "jwt-decode";
+import { authToken, createToken } from "../helper/createToken.js";
 import Crypto from "crypto";
+import Admins from "../models/AdminModel.js";
+import { generate, hash } from "../helper/passwordManager.js";
 import { transporter } from "../helper/nodemailer.js";
 import hbs from "nodemailer-express-handlebars";
 import { handlebarOptions } from "../helper/handlebars.js";
 
-const db = database.promise();
-
 export const login = async (req, res) => {
   try {
     let { email, password } = req.body;
-    const scriptQuery = `select * from admin where email = ?;`;
-
-    const [result] = await db.execute(scriptQuery, [email]);
-
-    if (result.length) {
-      if (result[0].role === "Admin") {
-        password = Crypto.createHmac("sha1", "hash123")
-          .update(password)
-          .digest("hex");
-
-        if (result[0].password === password) {
-          let date = Date.now();
-          const { id, email } = result[0];
-          const token = createToken({ id, email, date });
-
-          res.status(200).send({ adminData: result[0], token });
-        } else {
-          res.status(200).send("Password didn't match!");
-        }
-      } else {
-        if (result[0].password === password) {
-          let date = Date.now();
-          const { id, email } = result[0];
-          const token = createToken({ id, email, date });
-
-          res.status(200).send({ adminData: result[0], token });
-        } else {
-          res.status(200).send("Password didn't match!");
-        }
-      }
-    } else {
-      res.status(200).send("Email not found!");
+    const admins = await Admins.findOne({ where: { email } });
+    if (!admins) {
+      return res.status(200).send("Account not found!");
     }
+
+    const date = Date.now();
+    const adminData = admins.dataValues;
+    const token = createToken({ id: adminData.id, email, date }, "30m");
+
+    if (adminData.role === "Admin") {
+      password = Crypto.createHmac("sha1", "hash123")
+        .update(password)
+        .digest("hex");
+      if (adminData.password === password) {
+        delete adminData.password;
+        return res.status(200).send({ adminData, token });
+      }
+      return res.status(200).send("Password didn't match!");
+    }
+
+    if (adminData.password === password) {
+      delete adminData.password;
+      return res.status(200).send({ adminData, token });
+    }
+    res.status(200).send("Password didn't match");
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
@@ -52,16 +42,20 @@ export const login = async (req, res) => {
 
 export const keepLogin = async (req, res) => {
   try {
-    const scriptQuery = `select * from admin where email = ?;`;
-    const decoded = jwt_decode(req.body.token);
+    const auth = authToken(req.body.token);
+    const { id, email } = auth;
 
-    const [result] = await db.execute(scriptQuery, [decoded.email]);
-    let date = Date.now();
-    const { id, email } = result[0];
+    if (!auth) {
+      return res.status(200).send("0");
+    }
 
-    const token = createToken({ id, email, date });
+    const admins = await Admins.findOne({ where: { email } });
+    const adminData = admins.dataValues;
+    delete adminData.password;
 
-    res.status(200).send({ adminData: result[0], token });
+    const date = Date.now();
+    const token = createToken({ id, email, date }, "30m");
+    res.status(200).send({ adminData, token });
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
@@ -70,42 +64,27 @@ export const keepLogin = async (req, res) => {
 
 export const addAdmin = async (req, res) => {
   try {
-    const { name, email } = req.body;
-    let chars =
-      "0123456789abcdefghijklmnopqrstuvwxyz!@#$&ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let rawPassword = "";
-    // Generate Password
-    for (var i = 0; i <= 5; i++) {
-      var randomNumber = Math.floor(Math.random() * chars.length);
-      rawPassword += chars.substring(randomNumber, randomNumber + 1);
-    }
-    let password = rawPassword;
-    // Hashing Password
-    password = Crypto.createHmac("sha1", "hash123")
-      .update(password)
-      .digest("hex");
+    const { first_name, last_name, email } = req.body;
+    const generated = generate(8);
+    let password = hash(generated);
 
-    let checkEmailQuery = "select * from admin where email = ?;";
-    const insertQuery =
-      "insert into admin(first_name, email, password, is_verified, role) values(?,?,?,0,'Admin');";
+    const checkEmail = await Admins.findOne({ where: { email } });
+    if (checkEmail) return res.status(200).send("email");
 
-    // Check unique email
-    const [resultEmail] = await db.execute(checkEmailQuery, [email]);
-    if (resultEmail.length) return res.status(200).send("email");
-
-    // Insert new admin
-    const [result] = await db.execute(insertQuery, [name, email, password]);
-    if (result.insertId) {
-      let getQuery = "select * from admin where id = ?;";
-      const [resultData] = await db.execute(getQuery, [result.insertId]);
-      const { id, email } = resultData[0];
-      const token = createToken({ id, email });
+    const result = await Admins.create({
+      first_name,
+      last_name,
+      email,
+      password,
+    });
+    if (result) {
+      const token = createToken({ id: result.id, email }, "1h");
       const mail = {
         from: `RAMU <kuperhubid@gmail.com>`,
         to: `${email}`,
         subject: `RAMU Admin Account Verification`,
         template: "adminVerification",
-        context: { name, token, rawPassword },
+        context: { first_name, token, generated },
       };
 
       transporter.use("compile", hbs(handlebarOptions));
@@ -120,9 +99,12 @@ export const addAdmin = async (req, res) => {
 
 export const verification = async (req, res) => {
   try {
-    let updateQuery = "update admin set is_verified = 1 where id = ?;";
-    await db.execute(updateQuery, [req.user.id]);
-    res.status(200).send("success");
+    const auth = authToken(req.token);
+    if (auth) {
+      await Admins.update({ is_verified: true }, { where: { id: auth.id } });
+      return res.status(200).send(true);
+    }
+    res.status(200).send(false);
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
@@ -131,12 +113,10 @@ export const verification = async (req, res) => {
 
 export const sendResetLink = async (req, res) => {
   try {
-    const query = "select * from admin where email = ?;";
-    const [result] = await db.execute(query, [req.body.email]);
-
-    if (result.length) {
-      const { id, first_name, email } = result[0];
-      const token = createToken({ id, email });
+    const result = await Admins.findOne({ where: { email: req.body.email } });
+    if (result) {
+      const { id, first_name, email } = result.dataValues;
+      const token = createToken({ id, email }, "1h");
       const mail = {
         from: `RAMU <kuperhubid@gmail.com>`,
         to: `${email}`,
@@ -147,10 +127,9 @@ export const sendResetLink = async (req, res) => {
 
       transporter.use("compile", hbs(handlebarOptions));
       transporter.sendMail(mail);
-      res.status(200).send("1");
-    } else {
-      res.status(200).send("0");
+      return res.status(200).send(true);
     }
+    res.status(200).send(false);
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
@@ -159,27 +138,27 @@ export const sendResetLink = async (req, res) => {
 
 export const authResetToken = async (req, res) => {
   try {
-    res.status(200).send("1");
+    const auth = authToken(req.token);
+    if (auth) {
+      return res.status(200).send(true);
+    }
+    res.status(200).send(false);
   } catch (error) {
     console.log(error);
-    res.status(500).send(error);
+    res.status(200).send(error);
   }
 };
 
 export const resetPassword = async (req, res) => {
   try {
     let { password, token } = req.body;
-    // Hashing Password
-    password = Crypto.createHmac("sha1", "hash123")
-      .update(password)
-      .digest("hex");
-    // Decoding token
-    const decoded = jwt_decode(token);
-    const updateQuery = "update admin set password = ? where id = ?;";
-
-    await db.execute(updateQuery, [password, decoded.id]);
-
-    res.status(200).send("1");
+    password = await hash(password);
+    const auth = authToken(token);
+    if (auth) {
+      await Admins.update({ password }, { where: { id: auth.id } });
+      return res.status(200).send(true);
+    }
+    res.status(200).send(false);
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
