@@ -60,6 +60,19 @@ export const getProducts = async (req, res) => {
   }
 };
 
+export const getProductsById = async (req, res) => {
+  try {
+    const response = await Products.findOne({
+      where: {
+        id: req.params.id,
+      },
+    });
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
 export const addProduct = async (req, res) => {
   try {
     let path = "/products";
