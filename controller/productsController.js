@@ -66,6 +66,11 @@ export const getProductsById = async (req, res) => {
       where: {
         id: req.params.id,
       },
+      include: [
+        {
+          model: Category,
+        },
+      ],
     });
     res.status(200).json(response);
   } catch (error) {
