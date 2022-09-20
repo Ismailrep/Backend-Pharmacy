@@ -12,24 +12,16 @@ export const getProducts = async (req, res) => {
     const { count } = await Products.findAndCountAll({
       where: category_id
         ? {
-            name: {
-              [Op.like]: `%${name}%`,
-            },
+            name: { [Op.like]: `%${name}%` },
             category_id,
           }
         : {
-            name: {
-              [Op.like]: `%${name}%`,
-            },
+            name: { [Op.like]: `%${name}%` },
           },
     });
     const result = await Products.findAll({
       // attributes: ["id", "name", "price"],
-      include: [
-        {
-          model: Category,
-        },
-      ],
+      include: [{ model: Category, order: [["id"]] }],
       order: sortBy.name
         ? sortBy.asc
           ? [["name"]]
@@ -40,17 +32,8 @@ export const getProducts = async (req, res) => {
       limit: +perPage,
       offset: page * perPage - perPage,
       where: category_id
-        ? {
-            name: {
-              [Op.like]: `%${name}%`,
-            },
-            category_id,
-          }
-        : {
-            name: {
-              [Op.like]: `%${name}%`,
-            },
-          },
+        ? { name: { [Op.like]: `%${name}%` }, category_id }
+        : { name: { [Op.like]: `%${name}%` } },
     });
 
     res.status(200).send({ products: result, count });

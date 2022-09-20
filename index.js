@@ -6,6 +6,7 @@ import db from "./config/Database.js";
 import UserRoute from "./routes/UserRoute.js";
 import adminRouter from "./routes/adminRouter.js";
 import productRouter from "./routes/productRouter.js";
+import invoiceHeaderRouter from "./routes/invoiceHeaderRouter.js";
 import bearerToken from "express-bearer-token";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -45,6 +46,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(UserRoute);
 app.use("/admin", adminRouter);
 app.use("/products", productRouter);
+app.use("/invoices", invoiceHeaderRouter);
 
 // running backend
 app.listen(process.env.APP_PORT, () => {
