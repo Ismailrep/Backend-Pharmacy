@@ -1,5 +1,6 @@
 import sequelize from "sequelize";
 import db from "../config/Database.js";
+import Users from "./UserModel.js";
 
 const { DataTypes } = sequelize;
 
@@ -21,6 +22,11 @@ const Address = db.define("addresses", {
     allowNull: false,
     defaultValue: false,
   },
+});
+
+Address.belongsTo(Users, {
+  foreignKey: "user_id",
+  targetKey: "id",
 });
 
 export default Address;

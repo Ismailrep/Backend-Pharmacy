@@ -4,11 +4,11 @@ POST http://localhost:2000/users/register
 Content-Type: application/json
 
 {
-    "first_name": "Ryan",
-    "last_name": "Antarisa",
-    "email": "ryan@gmail.com",
+    "first_name": "Ariel",
+    "last_name": "Peterpan",
+    "email": "ariel@gmail.com",
     "password":"Password@123",
-    "phone": "082153460973"
+    "phone": "087885729863"
 }
 
 ###
@@ -106,3 +106,38 @@ GET http://localhost:2000/products/getProductsById/3
 # /// Delete User
 # DELETE   http://localhost:5001/users/8006a6c1-4094-4683-8e8b-06b5d78342ec
 
+###
+/// Add Product to Cart
+POST   http://localhost:2000/cart/add-to-cart
+Content-Type: application/json
+
+{
+    "product_id": 6,
+    "user_id":2,
+    "qty":3
+    }
+
+###
+/// Get cart
+GET    http://localhost:2000/cart/cart-item/2
+
+###
+/// Update item
+PATCH http://localhost:2000/cart/update-cart-item
+Content-Type: application/json
+
+{
+    "product_id": 6,
+    "user_id":1,
+    "qty":5
+    }
+
+###
+/// Delete item
+DELETE  http://localhost:2000/cart/delete-cart-item
+Content-Type: application/json
+
+{
+    "product_id": 4,
+    "user_id":1
+    }    

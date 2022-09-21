@@ -1,20 +1,17 @@
 import sequelize from "sequelize";
 import db from "../config/Database.js";
+import InvoiceDetail from "./InvoiceDetailModel.js";
+import Users from "./UserModel.js";
 import Products from "./ProductModel.js";
-import InvoiceHeader from "./InvoiceHeaderModel.js";
 
 const { DataTypes } = sequelize;
 
-const InvoiceDetail = db.define("invoice_detail", {
-  invoice_id: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  product_id: {
+const Cart = db.define("cart", {
+  user_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  price: {
+  product_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
@@ -24,9 +21,13 @@ const InvoiceDetail = db.define("invoice_detail", {
   },
 });
 
-InvoiceDetail.belongsTo(Products, {
+Cart.belongsTo(Products, {
   foreignKey: "product_id",
   targetKey: "id",
 });
+Cart.belongsTo(Users, {
+  foreignKey: "user_id",
+  targetKey: "id",
+});
 
-export default InvoiceDetail;
+export default Cart;
