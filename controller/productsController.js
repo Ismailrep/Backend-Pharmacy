@@ -11,13 +11,8 @@ export const getProducts = async (req, res) => {
     const { page, perPage, name, category_id, sortBy } = req.body;
     const { count } = await Products.findAndCountAll({
       where: category_id
-        ? {
-            name: { [Op.like]: `%${name}%` },
-            category_id,
-          }
-        : {
-            name: { [Op.like]: `%${name}%` },
-          },
+        ? { name: { [Op.like]: `%${name}%` }, category_id }
+        : { name: { [Op.like]: `%${name}%` } },
     });
     const result = await Products.findAll({
       // attributes: ["id", "name", "price"],

@@ -2,11 +2,12 @@ import sequelize from "sequelize";
 import db from "../config/Database.js";
 import Address from "./AddressModel.js";
 import InvoiceDetail from "./InvoiceDetailModel.js";
+import Payment from "./PaymentModel.js";
 import Users from "./UserModel.js";
 
 const { DataTypes } = sequelize;
 
-const InvoiceHeader = db.define("invoice_header", {
+const InvoiceHeader = db.define("invoice_headers", {
   invoice_id: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -26,21 +27,25 @@ const InvoiceHeader = db.define("invoice_header", {
   status: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: "Pending",
+    defaultValue: "Waiting for payment",
   },
 });
 
-// InvoiceDetail.belongsTo(InvoiceHeader, {
-//   foreignKey: "invoice_id",
-//   targetKey: "invoice_id",
-// });
+InvoiceHeader.hasMany(InvoiceDetail, {
+  foreignKey: "invoice_id",
+  sourceKey: "invoice_id",
+});
 
-// InvoiceHeader.hasMany(InvoiceDetail, {
-//   foreignKey: "invoice_id",
-//   sourceKey: "invoice_id",
-// });
+InvoiceDetail.belongsTo(InvoiceHeader, {
+  foreignKey: "invoice_id",
+  targetKey: "invoice_id",
+});
 
 InvoiceHeader.belongsTo(Users, { foreignKey: "user_id", targetKey: "id" });
 InvoiceHeader.belongsTo(Address, { foreignKey: "address_id", targetKey: "id" });
+InvoiceHeader.belongsTo(Payment, {
+  foreignKey: "invoice_id",
+  targetKey: "invoice_id",
+});
 
 export default InvoiceHeader;

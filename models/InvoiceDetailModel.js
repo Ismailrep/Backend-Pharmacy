@@ -1,11 +1,10 @@
 import sequelize from "sequelize";
 import db from "../config/Database.js";
 import Products from "./ProductModel.js";
-import InvoiceHeader from "./InvoiceHeaderModel.js";
 
 const { DataTypes } = sequelize;
 
-const InvoiceDetail = db.define("invoice_detail", {
+const InvoiceDetail = db.define("invoice_details", {
   invoice_id: {
     type: DataTypes.STRING,
     allowNull: false,

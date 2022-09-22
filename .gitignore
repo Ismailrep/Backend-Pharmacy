@@ -12,6 +12,7 @@
 # production
 /build
 /public/products
+/public/payments
 
 # misc
 .DS_Store

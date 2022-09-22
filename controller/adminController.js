@@ -43,12 +43,12 @@ export const login = async (req, res) => {
 export const keepLogin = async (req, res) => {
   try {
     const auth = authToken(req.body.token);
-    const { id, email } = auth;
 
     if (!auth) {
       return res.status(200).send("0");
     }
 
+    const { id, email } = auth;
     const admins = await Admins.findOne({ where: { email } });
     const adminData = admins.dataValues;
     delete adminData.password;

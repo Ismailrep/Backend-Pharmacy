@@ -1,9 +1,9 @@
 import sequelize from "sequelize";
-import db from "../config/Database";
+import db from "../config/Database.js";
 
 const { DataTypes } = sequelize;
 
-const Payment = db.define("payment_confirmation", {
+const Payment = db.define("payment_confirmations", {
   invoice_id: {
     type: DataTypes.STRING,
     allowNull: false,
