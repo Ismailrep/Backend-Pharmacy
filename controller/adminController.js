@@ -5,6 +5,7 @@ import { generate, hash } from "../helper/passwordManager.js";
 import { transporter } from "../helper/nodemailer.js";
 import hbs from "nodemailer-express-handlebars";
 import { handlebarOptions } from "../helper/handlebars.js";
+import { Op } from "sequelize";
 
 export const login = async (req, res) => {
   try {
@@ -159,6 +160,36 @@ export const resetPassword = async (req, res) => {
       return res.status(200).send(true);
     }
     res.status(200).send(false);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};
+
+export const getAdmins = async (req, res) => {
+  try {
+    const { page, perPage, nameOrMail, asc } = req.body;
+    console.log(req.body);
+    const { count } = await Admins.findAndCountAll({
+      where: {
+        [Op.or]: [
+          { first_name: { [Op.like]: `%${nameOrMail}%` } },
+          { email: { [Op.like]: `%${nameOrMail}%` } },
+        ],
+      },
+    });
+    const result = await Admins.findAll({
+      order: asc ? [["first_name"]] : [["first_name", "desc"]],
+      limit: perPage,
+      offset: page * perPage - perPage,
+      where: {
+        [Op.or]: [
+          { first_name: { [Op.like]: `%${nameOrMail}%` } },
+          { email: { [Op.like]: `%${nameOrMail}%` } },
+        ],
+      },
+    });
+    res.status(200).send({ admins: result, count });
   } catch (error) {
     console.log(error);
     res.status(500).send(error);

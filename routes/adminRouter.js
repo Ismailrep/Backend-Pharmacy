@@ -7,10 +7,12 @@ import {
   sendResetLink,
   authResetToken,
   resetPassword,
+  getAdmins,
 } from "../controller/adminController.js";
 
 const routers = express.Router();
 
+routers.post("/get-admins", getAdmins);
 routers.post("/login", login);
 routers.post("/keepLogin", keepLogin);
 routers.post("/add-admin", addAdmin);
