@@ -52,6 +52,7 @@ export const getCart = async (req, res) => {
       where: {
         user_id: req.params.id,
       },
+      include: [{ model: Products }],
     });
     res.status(200).json(response);
   } catch (error) {
@@ -112,4 +113,40 @@ export const deleteCartItem = async (req, res) => {
   }
 };
 
-export const checkOutCart = async (req, res) => {};
+export const checkOutCart = async (req, res) => {
+  const { product_id, user_id } = req.body;
+
+  try {
+    const cartItem = await Cart.findAll({
+      where: {
+        user_id,
+      },
+    });
+
+    const address = await Address.findAll({
+      where: {
+        user_id,
+      },
+    });
+
+    const emptyAddress = address.length === 0;
+
+    if (!emptyAddress) {
+      const response = await Cart.destroy({
+        where: {
+          user_id,
+        },
+      });
+    }
+
+    res
+      .status(200)
+      .json(
+        emptyAddress
+          ? "Please fill out your address first!"
+          : "Cart Checked Out!"
+      );
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};

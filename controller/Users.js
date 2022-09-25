@@ -15,6 +15,7 @@ export const loginUser = async (req, res) => {
       },
     });
 
+    const id = user.id;
     const first_name = user.first_name;
     const last_name = user.last_name;
     const is_verified = user.is_verified;
@@ -29,6 +30,7 @@ export const loginUser = async (req, res) => {
           expiresIn: "1h",
         });
         res.status(200).json({
+          id,
           email,
           first_name,
           last_name,
