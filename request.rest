@@ -127,9 +127,9 @@ PATCH http://localhost:2000/cart/update-cart-item
 Content-Type: application/json
 
 {
-    "product_id": 6,
-    "user_id":1,
-    "qty":5
+    "product_id": 17,
+    "user_id":2,
+    "qty":10
     }
 
 ###
@@ -138,6 +138,15 @@ DELETE  http://localhost:2000/cart/delete-cart-item
 Content-Type: application/json
 
 {
-    "product_id": 4,
-    "user_id":1
+    "product_id": 7,
+    "user_id":2
     }    
+
+###
+/// 
+POST   http://localhost:2000/cart/check-out-cart
+Content-Type: application/json
+
+{
+    "user_id":2
+    }

@@ -3,6 +3,7 @@ import db from "../config/Database.js";
 import InvoiceDetail from "./InvoiceDetailModel.js";
 import Users from "./UserModel.js";
 import Products from "./ProductModel.js";
+import Category from "./CategoryModel.js";
 
 const { DataTypes } = sequelize;
 
