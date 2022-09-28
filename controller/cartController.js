@@ -52,7 +52,7 @@ export const getCart = async (req, res) => {
       where: {
         user_id: req.params.id,
       },
-      include: [{ model: Products }],
+      include: [{ model: Products, include: [{ model: Category }] }],
     });
     res.status(200).json(response);
   } catch (error) {
