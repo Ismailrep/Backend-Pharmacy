@@ -8,6 +8,7 @@ import adminRouter from "./routes/adminRouter.js";
 import productRouter from "./routes/productRouter.js";
 import invoiceHeaderRouter from "./routes/invoiceHeaderRouter.js";
 import cartRouter from "./routes/cartRouter.js";
+import reportRouter from "./routes/reportRouter.js";
 import bearerToken from "express-bearer-token";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -49,6 +50,7 @@ app.use("/admin", adminRouter);
 app.use("/products", productRouter);
 app.use("/invoices", invoiceHeaderRouter);
 app.use("/cart", cartRouter);
+app.use("/report", reportRouter);
 
 // running backend
 app.listen(process.env.APP_PORT, () => {

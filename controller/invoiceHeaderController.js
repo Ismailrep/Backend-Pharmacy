@@ -1,12 +1,10 @@
-import sequelize from "sequelize";
+import { Op } from "sequelize";
 import Address from "../models/AddressModel.js";
 import InvoiceDetail from "../models/InvoiceDetailModel.js";
 import InvoiceHeader from "../models/InvoiceHeaderModel.js";
 import Payment from "../models/PaymentModel.js";
 import Products from "../models/ProductModel.js";
 import Users from "../models/UserModel.js";
-
-const Op = sequelize.Op;
 
 export const getInvoiceHeaders = async (req, res) => {
   try {
