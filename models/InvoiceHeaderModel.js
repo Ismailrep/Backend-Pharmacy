@@ -31,15 +31,15 @@ const InvoiceHeader = db.define("invoice_headers", {
   },
 });
 
-InvoiceHeader.hasMany(InvoiceDetail, {
-  foreignKey: "invoice_id",
-  sourceKey: "invoice_id",
-});
+// InvoiceHeader.hasMany(InvoiceDetail, {
+//   foreignKey: "invoice_id",
+//   sourceKey: "invoice_id",
+// });
 
-InvoiceDetail.belongsTo(InvoiceHeader, {
-  foreignKey: "invoice_id",
-  targetKey: "invoice_id",
-});
+// InvoiceDetail.belongsTo(InvoiceHeader, {
+//   foreignKey: "invoice_id",
+//   targetKey: "invoice_id",
+// });
 
 InvoiceHeader.belongsTo(Users, { foreignKey: "user_id", targetKey: "id" });
 InvoiceHeader.belongsTo(Address, { foreignKey: "address_id", targetKey: "id" });
