@@ -9,8 +9,8 @@ import {
 const routers = express.Router();
 
 routers.post("/getRevenue", getRevenue);
-routers.get("/getRecentOrder", getRecentOrder);
-routers.get("/getTopProducts", getTopProducts);
-routers.get("/getStatistic", getStoreStatistic);
+routers.post("/getRecentOrder", getRecentOrder);
+routers.post("/getTopProducts", getTopProducts);
+routers.post("/getStatistic", getStoreStatistic);
 
 export default routers;
