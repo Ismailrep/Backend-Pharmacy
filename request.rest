@@ -4,9 +4,9 @@ POST http://localhost:2000/users/register
 Content-Type: application/json
 
 {
-    "first_name": "Ariel",
-    "last_name": "Peterpan",
-    "email": "ariel@gmail.com",
+    "first_name": "Bruce",
+    "last_name": "Wayne",
+    "email": "bruce@gmail.com",
     "password":"Password@123",
     "phone": "087885729863"
 }
@@ -36,7 +36,7 @@ POST http://localhost:2000/users/login
 Content-Type: application/json
 
 {
-    "email": "john@gmail.com",
+    "email": "ariel@gmail.com",
     "password": "Password@123"
 }
 
@@ -150,3 +150,28 @@ Content-Type: application/json
 {
     "user_id":2
     }
+
+###
+// Add Address
+POST http://localhost:2000/address/add-address
+Content-Type: application/json
+
+{
+    "name": "Rumah Samarinda",
+    "address": "Jl. Pipit No.22 Samarinda Kota",
+    "user_id":2
+}
+
+###
+// Get User Address
+
+GET http://localhost:2000/address/get-address/2
+
+###
+// Check Out Cart
+POST http://localhost:2000/cart/check-out-cart
+Content-Type: application/json
+
+{
+    "user_id": 2
+}

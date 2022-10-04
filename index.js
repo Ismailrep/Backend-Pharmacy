@@ -9,9 +9,11 @@ import productRouter from "./routes/productRouter.js";
 import invoiceHeaderRouter from "./routes/invoiceHeaderRouter.js";
 import cartRouter from "./routes/cartRouter.js";
 import reportRouter from "./routes/reportRouter.js";
+import addressRouter from "./routes/addressRoute.js";
 import bearerToken from "express-bearer-token";
 import path from "path";
 import { fileURLToPath } from "url";
+// import Address from "./models/AddressModel.js";
 dotenv.config();
 
 const app = express();
@@ -51,6 +53,7 @@ app.use("/products", productRouter);
 app.use("/invoices", invoiceHeaderRouter);
 app.use("/cart", cartRouter);
 app.use("/report", reportRouter);
+app.use("/address", addressRouter);
 
 // running backend
 app.listen(process.env.APP_PORT, () => {

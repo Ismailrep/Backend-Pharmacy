@@ -4,6 +4,7 @@ import { transporter } from "../helper/nodemailer.js";
 import hbs from "nodemailer-express-handlebars";
 import { handlebarOptions } from "../helper/handlebars.js";
 import jwt from "jsonwebtoken";
+import Address from "../models/AddressModel.js";
 
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -13,13 +14,19 @@ export const loginUser = async (req, res) => {
       where: {
         email: email,
       },
+      // include: {
+      //   model: Address,
+      // },
     });
+
+    console.log(user);
 
     const id = user.id;
     const first_name = user.first_name;
     const last_name = user.last_name;
     const is_verified = user.is_verified;
     const active_status = user.active_status;
+    const phone = user.phone;
 
     if (user) {
       const validate = await bcrypt.compare(password, user.password);
@@ -32,6 +39,7 @@ export const loginUser = async (req, res) => {
         res.status(200).json({
           id,
           email,
+          phone,
           first_name,
           last_name,
           is_verified,
@@ -79,6 +87,7 @@ export const getUser = async (req, res) => {
         "is_verified",
         "active_status",
       ],
+      // include: { model: Address },
     });
     res.status(200).json(response);
   } catch (error) {
@@ -155,13 +164,14 @@ export const createUser = async (req, res) => {
     transporter.use("compile", hbs(handlebarOptions));
 
     const response = await User.create({
-      first_name: first_name,
-      last_name: last_name,
-      email: email,
+      first_name,
+      last_name,
+      email,
       password: hashedPass,
-      phone: phone,
+      phone,
       is_verified: false,
       active_status: true,
+      include: { model: Address },
     });
 
     let mail = {
